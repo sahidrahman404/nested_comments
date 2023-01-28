@@ -1,42 +1,81 @@
-import type {
-  Comment,
-  NestedComment as nc,
-} from "../schemas/commentSchema.server";
+import { A, pipe } from "@mobily/ts-belt";
+import type { Comment as c } from "../schemas/commentSchema.server";
 
-type Comments = Omit<Comment, "id" | "content" | "usersId">[];
-type NestedComment = Omit<nc, "id" | "content" | "usersId">;
-type NestedComments = NestedComment[];
+type Comment = Pick<c, "path" | "content" | "parentPath"> & {
+  children?: Comment[];
+};
+type Comments = Comment[];
+type Error = {
+  error: string;
+};
 
-function addChildren(comments: Comments) {
-  return comments.map((comment) => ({ ...comment, children: [] }));
+function getParents(comments: Comments) {
+  return pipe(
+    comments,
+    A.filterMap((comment) => {
+      if (comment.parentPath === null) {
+        return comment;
+      }
+    })
+  );
 }
 
-function selectParents(comments: NestedComments) {
-  return comments.filter((comment) => comment.parentPath === null);
+function findParentByPath(
+  data: Comments,
+  id: string,
+  defaultValue = null
+): null | Comment {
+  if (!data.length) {
+    return defaultValue;
+  }
+
+  return (
+    data.find((el) => el.path === id) ||
+    findParentByPath(
+      data.flatMap((el) => el["children"] || []),
+      id
+    )
+  );
 }
 
-function findParent(data: NestedComments, id: string) {
-  let result: NestedComment | undefined;
-  function iter(a: NestedComment) {
-    if (a.path === id) {
-      result = a;
+function transformComments(
+  comments: Comments | null,
+  parents: null | Comments = null,
+  children: null | Comments = null
+): Error | Comments {
+  if (!comments) {
+    return { error: "You should pass the comments argument" } as Error;
+  }
+  if (!parents) {
+    return transformComments(comments, [...getParents(comments)]);
+  }
+  if (!children) {
+    const c = A.filterMap(comments, (comment) => {
+      if (comment.parentPath !== null) {
+        return comment;
+      }
+    });
+    return transformComments([], parents, [...c]);
+  }
+  if (Array.isArray(children) && children.length > 0) {
+    for (const child of children) {
+      if (!child.parentPath) {
+        return { error: "The parents should appear before children" } as Error;
+      }
+      const parent = findParentByPath(parents, child.parentPath);
+      if (!parent) {
+        return { error: "The parents should appear before children" } as Error;
+      }
+      children.shift();
+      if (!parent?.children) {
+        parent["children"] = [{ ...child }];
+        return transformComments([], parents, children);
+      }
+      parent.children.push(child);
+      return transformComments([], parents, children);
     }
   }
-  data.some(iter);
-  return result;
-}
 
-function transformComments(comments: Comments) {
-  const withChildren = addChildren(comments);
-  withChildren.forEach((comment) => {
-    const parentPath = comment.parentPath;
-
-    if (parentPath === comment.path.slice(0, comment.path.length - 2)) {
-      const a = findParent(withChildren, parentPath);
-      a?.children.push(comment);
-    }
-  });
-  const result = selectParents(withChildren);
-  return result;
+  return parents;
 }
-export { transformComments, selectParents, addChildren, findParent };
+export { transformComments };

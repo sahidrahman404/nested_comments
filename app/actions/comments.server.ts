@@ -19,7 +19,7 @@ async function selectAllComments() {
 
 async function selectAllCommentsWithName() {
   const comments = await sql<
-    Pick<Comment, "path" | "parentPath" | "content"> & { name: string }[]
+    Pick<Comment, "path" | "parentPath" | "content">[]
   >`select content, name, path, parent_path 
 from comments 
 join users on comments.users_id = users.id`;
@@ -31,7 +31,6 @@ join users on comments.users_id = users.id`;
   // if (!isCorrect) {
   //   return { result: parsed, origin: comments[0] };
   // }
-
   return transformComments(comments);
 }
 
