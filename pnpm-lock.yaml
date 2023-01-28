@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@mobily/ts-belt': ^3.13.1
   '@remix-run/dev': ^1.11.1
   '@remix-run/eslint-config': ^1.11.1
   '@remix-run/node': ^1.11.1
@@ -14,8 +15,10 @@ specifiers:
   react: ^18.2.0
   react-dom: ^18.2.0
   typescript: ^4.8.4
+  zod: ^3.20.2
 
 dependencies:
+  '@mobily/ts-belt': 3.13.1
   '@remix-run/node': 1.11.1_biqbaboplfbrettd7655fr4n2y
   '@remix-run/react': 1.11.1_biqbaboplfbrettd7655fr4n2y
   '@remix-run/serve': 1.11.1_biqbaboplfbrettd7655fr4n2y
@@ -23,6 +26,7 @@ dependencies:
   postgres: 3.3.3
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
+  zod: 3.20.2
 
 devDependencies:
   '@remix-run/dev': 1.11.1_kbsvfewv4jwrmiyw4esgzjg2te
@@ -1642,6 +1646,11 @@ packages:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: true
+
+  /@mobily/ts-belt/3.13.1:
+    resolution: {integrity: sha512-K5KqIhPI/EoCTbA6CGbrenM9s41OouyK8A03fGJJcla/zKucsgLbz8HNbeseoLarRPgyWJsUyCYqFhI7t3Ra9Q==}
+    engines: {node: '>= 10.*'}
+    dev: false
 
   /@nicolo-ribaudo/eslint-scope-5-internals/5.1.1-v1:
     resolution: {integrity: sha512-54/JRvkLIzzDWshCWfuhadfrfZVPiElY8Fcgmg1HroEly/EDSszzhBAsarCux+D/kOslTRquNzuyGSmUSTTHGg==}
@@ -7952,6 +7961,10 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zod/3.20.2:
+    resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+    dev: false
 
   /zwitch/2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}

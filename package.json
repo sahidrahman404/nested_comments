@@ -8,13 +8,15 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@mobily/ts-belt": "^3.13.1",
     "@remix-run/node": "^1.11.1",
     "@remix-run/react": "^1.11.1",
     "@remix-run/serve": "^1.11.1",
     "isbot": "^3.6.5",
     "postgres": "^3.3.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.11.1",
