@@ -1,42 +1,48 @@
 import type {
-  Comment,
+  Comment as cn,
   NestedComment as nc,
 } from "../schemas/commentSchema.server";
 
-type Comments = Omit<Comment, "id" | "content" | "usersId">[];
-type NestedComment = Omit<nc, "id" | "content" | "usersId">;
+type Comment = Omit<cn, "id" | "content" | "usersId">;
+type Comments = Comment[];
+type NestedComment = Omit<nc, "id" | "content" | "usersId" | "children"> & {
+  children: NestedComment[];
+};
 type NestedComments = NestedComment[];
 
-function addChildren(comments: Comments) {
-  return comments.map((comment) => ({ ...comment, children: [] }));
+function addChildren<c extends Comment>(comments: Comments) {
+  return comments.map((comment) => ({ ...(comment as c), children: [] }));
 }
 
 function selectParents(comments: NestedComments) {
   return comments.filter((comment) => comment.parentPath === null);
 }
 
-function findParent(data: NestedComments, id: string) {
+function findRoot(data: NestedComments, id: string) {
   let result: NestedComment | undefined;
   function iter(a: NestedComment) {
     if (a.path === id) {
       result = a;
+      return true;
     }
+    return Array.isArray(a.children) && a.children.some(iter);
   }
   data.some(iter);
   return result;
 }
 
-function transformComments(comments: Comments) {
-  const withChildren = addChildren(comments);
-  withChildren.forEach((comment) => {
+function transformComments<c extends Comment>(comments: Comments) {
+  const commentsWithChildren = addChildren<c>(comments);
+  commentsWithChildren.forEach((comment) => {
     const parentPath = comment.parentPath;
-
-    if (parentPath === comment.path.slice(0, comment.path.length - 2)) {
-      const a = findParent(withChildren, parentPath);
-      a?.children.push(comment);
+    if (parentPath !== null) {
+      const root = findRoot(commentsWithChildren, parentPath);
+      root?.children.push(comment);
     }
   });
-  const result = selectParents(withChildren);
+  const result = selectParents(
+    commentsWithChildren
+  ) as typeof commentsWithChildren;
   return result;
 }
-export { transformComments, selectParents, addChildren, findParent };
+export { transformComments };

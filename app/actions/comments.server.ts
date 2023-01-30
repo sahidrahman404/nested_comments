@@ -17,12 +17,14 @@ async function selectAllComments() {
   return transformComments(comments);
 }
 
+type A = Pick<Comment, "path" | "parentPath" | "content"> & {
+  name: string;
+  rank: number;
+};
 async function selectAllCommentsWithName() {
-  const comments = await sql<
-    Pick<Comment, "path" | "parentPath" | "content"> & { name: string }[]
-  >`select content, name, path, parent_path 
+  const comments = await sql<A[]>`select content, name, path, parent_path, rank 
 from comments 
-join users on comments.users_id = users.id`;
+join users on comments.users_id = users.id order by rank desc`;
 
   // const parsed = await comment.safeParseAsync(comments[0]);
   //
@@ -32,7 +34,7 @@ join users on comments.users_id = users.id`;
   //   return { result: parsed, origin: comments[0] };
   // }
 
-  return transformComments(comments);
+  return transformComments<A>(comments);
 }
 
 export { selectAllComments, selectAllCommentsWithName };
