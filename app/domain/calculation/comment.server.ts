@@ -10,29 +10,24 @@ type NestedComment = Omit<nc, "id" | "content" | "usersId" | "children"> & {
 };
 type NestedComments = NestedComment[];
 
-function addChildren<c extends Comment>(comments: Comments) {
-  return comments.map((comment) => ({ ...(comment as c), children: [] }));
+function addChildren(comments: Comments): NestedComments {
+  return comments.map((comment) => ({ ...comment, children: [] }));
 }
 
-function selectParents(comments: NestedComments) {
+function selectParents(comments: NestedComments): NestedComments {
   return comments.filter((comment) => comment.parentPath === null);
 }
 
-function findRoot(data: NestedComments, id: string) {
-  let result: NestedComment | undefined;
-  function iter(a: NestedComment) {
-    if (a.path === id) {
-      result = a;
-      return true;
-    }
-    return Array.isArray(a.children) && a.children.some(iter);
+function findRoot(comments: NestedComments, parentPath: string): NestedComment {
+  const root = comments.find((comment) => comment.path === parentPath);
+  if (!root) {
+    throw new Error("Parent Path should appears first");
   }
-  data.some(iter);
-  return result;
+  return root;
 }
 
-function transformComments<c extends Comment>(comments: Comments) {
-  const commentsWithChildren = addChildren<c>(comments);
+function transformComments(comments: Comments): NestedComments {
+  const commentsWithChildren = addChildren(comments);
   commentsWithChildren.forEach((comment) => {
     const parentPath = comment.parentPath;
     if (parentPath !== null) {
