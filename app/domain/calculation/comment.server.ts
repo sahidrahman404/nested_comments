@@ -1,3 +1,4 @@
+import { A, pipe } from "@mobily/ts-belt";
 import type {
   Comment as cn,
   NestedComment as nc,
@@ -10,34 +11,23 @@ type NestedComment = Omit<nc, "id" | "content" | "usersId" | "children"> & {
 };
 type NestedComments = NestedComment[];
 
-function addChildren(comments: Comments): NestedComments {
-  return comments.map((comment) => ({ ...comment, children: [] }));
-}
-
-function selectParents(comments: NestedComments): NestedComments {
-  return comments.filter((comment) => comment.parentPath === null);
-}
-
-function findRoot(comments: NestedComments, parentPath: string): NestedComment {
-  const root = comments.find((comment) => comment.path === parentPath);
-  if (!root) {
-    throw new Error("Parent Path should appears first");
-  }
-  return root;
-}
-
 function transformComments(comments: Comments): NestedComments {
-  const commentsWithChildren = addChildren(comments);
-  commentsWithChildren.forEach((comment) => {
-    const parentPath = comment.parentPath;
-    if (parentPath !== null) {
-      const root = findRoot(commentsWithChildren, parentPath);
-      root?.children.push(comment);
+  const result: NestedComments = [];
+  const commentsMap = new Map<string, number>();
+  comments.forEach((comment, index, array) => {
+    (array[index] as NestedComment).children = [];
+    commentsMap.set(comment.path, index);
+    if (comment.parentPath) {
+      const parentCommentIndex = commentsMap.get(comment.parentPath);
+      (array[parentCommentIndex!] as NestedComment).children.push(
+        array[index] as NestedComment
+      );
+    }
+
+    if (comment.parentPath === null) {
+      result.push(array[index] as NestedComment);
     }
   });
-  const result = selectParents(
-    commentsWithChildren
-  ) as typeof commentsWithChildren;
   return result;
 }
 export { transformComments };

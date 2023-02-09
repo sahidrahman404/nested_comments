@@ -26,7 +26,7 @@ from comments as c
 join users as u on u.id = c.users_id
 left join comments_likes as cl on cl.comments_id = c.id
 group by c.id, u.id, u.username, c.content
-order by c.created_at desc`;
+order by parent_path asc nulls first, likes desc`;
 
   // const parsed = await comment.safeParseAsync(comments[0]);
   //
